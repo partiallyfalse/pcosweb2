@@ -459,6 +459,18 @@ textarea.inp{resize:vertical;min-height:88px;line-height:1.65}
 }
 
 </style>
+<style>
+#errpanel{
+  position:fixed;inset:auto 10px 10px 10px;z-index:9999;max-height:60vh;overflow-y:auto;
+  background:#1a0d12;color:#ffb3c6;font:12px/1.5 monospace;padding:14px;border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;white-space:pre-wrap;word-break:break-word;
+  border:2px solid #ff5c93;
+}
+#errpanel.on{display:block}
+#errpanel .eh{color:#fff;font-weight:bold;margin-bottom:8px;display:flex;justify-content:space-between;font-family:sans-serif}
+#errpanel .eh button{background:#ff5c93;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-family:sans-serif;font-weight:bold}
+#errpanel .ln{border-top:1px solid #4a2233;padding-top:8px;margin-top:8px}
+</style>
 </head>
 <body>
 <div id="hearts"></div>
@@ -692,7 +704,7 @@ textarea.inp{resize:vertical;min-height:88px;line-height:1.65}
   <div class="vwrap">
     <h1 class="pt"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v1a7 7 0 0014 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>For Your Ears</h1>
     <div class="card">
-      <p class="body">HEYEYEYYE BUBUUU, WHEN IM IN WORK, YOU CAN LISTENNN TO THISISISI HEHEHEHEEH MWAHHHHH.</p>
+      <p class="body">Put your headphones in bubu. Press play whenever you miss me.</p>
       <div class="row">
         <button class="btn" onclick="pickVoice()">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -701,7 +713,7 @@ textarea.inp{resize:vertical;min-height:88px;line-height:1.65}
       </div>
       <div id="vprogress"><div id="vbar"></div></div>
       <p class="tiny" style="margin-top:9px">Any audio file up to 50MB. An hour-long voice memo is usually 15&ndash;20MB, so you're fine.</p>
-      <input type="file" id="voicefile" accept="audio/*" hidden>
+      <input type="file" id="voicefile" accept="audio/*,.m4a,.mp3,.wav,.aac,.caf,.ogg,.flac,.mp4" hidden>
     </div>
     <div id="voicelist"><div class="loading">loading&hellip;</div></div>
   </div>
@@ -711,7 +723,7 @@ textarea.inp{resize:vertical;min-height:88px;line-height:1.65}
 <section class="page" id="p-draw">
   <h1 class="pt"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Our Drawings</h1>
   <div class="card">
-    <p class="body">HEYYYY BUBUUU, WE MAKING STUPID ASS DRAWINGSSS HEHEHEHEHE, ME CAN DRAW THEN YOU CAN DRAW, THE  OTHER WAY AROUND.</p>
+    <p class="body">Draw something dumb, I'll draw on top of it, then you draw on top of that. Every version gets saved so we keep the whole thing forever.</p>
     <div class="row">
       <button class="btn" onclick="newDrawing()">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -2005,5 +2017,31 @@ async function boot(){
 }
 
 </script>
+
+<div id="errpanel">
+  <div class="eh"><span>Errors caught</span><button onclick="document.getElementById('errpanel').classList.remove('on')">close</button></div>
+  <div id="errlog"></div>
+</div>
+<script>
+(function(){
+  const seen=[];
+  function show(msg){
+    seen.push(msg);
+    const panel=document.getElementById('errpanel');
+    const log=document.getElementById('errlog');
+    if(panel && log){
+      log.innerHTML = seen.map(m=>'<div class="ln">'+m.replace(/</g,'&lt;')+'</div>').join('');
+      panel.classList.add('on');
+    }
+  }
+  window.addEventListener('error', e=>{
+    show((e.filename?e.filename.split('/').pop()+':'+e.lineno+' — ':'') + (e.message||String(e.error)));
+  });
+  window.addEventListener('unhandledrejection', e=>{
+    show('Promise rejection — ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)));
+  });
+})();
+</script>
+
 </body>
 </html>
